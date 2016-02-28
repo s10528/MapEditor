@@ -1,0 +1,12 @@
+D:\ゲーム制作\mapeditor\mapeditor\bin\Debug\mapeditor.exe.config
+D:\ゲーム制作\mapeditor\mapeditor\bin\Debug\mapeditor.exe
+D:\ゲーム制作\mapeditor\mapeditor\bin\Debug\mapeditor.pdb
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.csprojResolveAssemblyReference.cache
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.Form1.resources
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.Properties.Resources.resources
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.csproj.GenerateResource.Cache
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.exe
+D:\ゲーム制作\mapeditor\mapeditor\obj\Debug\mapeditor.pdb
+D:\ゲーム制作\MAP\mapeditor\bin\Debug\mapeditor.exe.config
+D:\ゲーム制作\MAP\mapeditor\obj\Debug\mapeditor.exe
+D:\ゲーム制作\MAP\mapeditor\obj\Debug\mapeditor.pdb
