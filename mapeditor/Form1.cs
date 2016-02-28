@@ -30,7 +30,7 @@ namespace mapeditor
         }
         private void addImage(object sender, EventArgs e)
         {
-            int buttonId = ((Button)sender).TabIndex; // ボタンの名前
+            int buttonId = ((Button)sender).TabIndex-1; // ボタンの名前
             string imagepath = dict[listBox1.SelectedItem.ToString()];
             System.Drawing.Image img = System.Drawing.Image.FromFile(imagepath);
             list[buttonId].Image = img;
@@ -54,12 +54,13 @@ namespace mapeditor
             }
 
             // 要素を後ろに追加していく
+            b_num = 0;
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
                 {
                     Button btn = new Button();
-                    b_num = i * width + j;
+                    b_num++;
 
                     // 2-1)インスタンスを作成
                     // 2-2)配置位置を設定
