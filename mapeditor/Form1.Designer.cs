@@ -36,6 +36,8 @@
             this.button_imgRead = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.button_mapExport = new System.Windows.Forms.Button();
+            this.radio_front = new System.Windows.Forms.RadioButton();
+            this.radio_back = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // button_waku
@@ -101,18 +103,46 @@
             // 
             // button_mapExport
             // 
-            this.button_mapExport.Location = new System.Drawing.Point(36, 194);
+            this.button_mapExport.Location = new System.Drawing.Point(36, 206);
             this.button_mapExport.Name = "button_mapExport";
             this.button_mapExport.Size = new System.Drawing.Size(97, 30);
             this.button_mapExport.TabIndex = 7;
             this.button_mapExport.Text = "map出力";
             this.button_mapExport.UseVisualStyleBackColor = true;
+            this.button_mapExport.Click += new System.EventHandler(this.button_mapExport_Click);
+            // 
+            // radio_front
+            // 
+            this.radio_front.AutoSize = true;
+            this.radio_front.Checked = true;
+            this.radio_front.Location = new System.Drawing.Point(35, 161);
+            this.radio_front.Name = "radio_front";
+            this.radio_front.Size = new System.Drawing.Size(47, 16);
+            this.radio_front.TabIndex = 8;
+            this.radio_front.TabStop = true;
+            this.radio_front.Text = "front";
+            this.radio_front.UseVisualStyleBackColor = true;
+            // 
+            // radio_back
+            // 
+            this.radio_back.AutoSize = true;
+            this.radio_back.Location = new System.Drawing.Point(35, 183);
+            this.radio_back.Name = "radio_back";
+            this.radio_back.Size = new System.Drawing.Size(47, 16);
+            this.radio_back.TabIndex = 9;
+            this.radio_back.Text = "back";
+            this.radio_back.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
+            this.AutoScrollMargin = new System.Drawing.Size(10, 10);
+            this.AutoScrollMinSize = new System.Drawing.Size(10, 10);
             this.ClientSize = new System.Drawing.Size(1197, 615);
+            this.Controls.Add(this.radio_back);
+            this.Controls.Add(this.radio_front);
             this.Controls.Add(this.button_mapExport);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.button_imgRead);
@@ -139,6 +169,8 @@
         private System.Windows.Forms.Button button_imgRead;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Button button_mapExport;
+        private System.Windows.Forms.RadioButton radio_front;
+        private System.Windows.Forms.RadioButton radio_back;
     }
 }
 
