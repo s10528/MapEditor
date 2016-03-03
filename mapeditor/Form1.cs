@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.IO;
 
 namespace mapeditor
 {
@@ -19,6 +19,10 @@ namespace mapeditor
         Size tip_size = new Size(32, 32);
         Dictionary<String, Bitmap> img_list;
         int img_count = 0;
+        string[,] mapdata;
+        List<Button> list = new List<Button>();
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+
         public Form1()
         {
             InitializeComponent();
@@ -27,26 +31,47 @@ namespace mapeditor
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+
             int tate = int.Parse(textBox1.Text);
             int yoko = int.Parse(textBox2.Text);
-            button_dipose(yoko,tate,this);
+
+            mapdata = new string[tate, yoko];
+            //for (int i = 0; i < tate; i++)
+            //{
+            //    for (int j = 0; j < yoko; j++)
+            //    {
+            //        mapdata[i, j] = 0;
+            //        console.writeline(mapdata.l);
+            //    }
+            //}
+
+            button_dipose(yoko, tate, this);
+
 
         }
         private void addImage(object sender, EventArgs e)
         {
-            int buttonId = ((Button)sender).TabIndex-1; // ボタンの名前
-            string imagepath = listBox1.SelectedItem.ToString();
+            int buttonId = ((Button)sender).TabIndex - 1; // ボタンの名前
+            string imagename = listBox1.SelectedItem.ToString();
             Bitmap img = img_list[imagepath];
-            list[buttonId].Image = img;
-            Console.WriteLine(list[buttonId].Size);
-            
-       }
+            int x = int.Parse(list[buttonId].Text.Split(',')[0]);
+            int y = int.Parse(list[buttonId].Text.Split(',')[1]);
 
-        List<Button> list = new List<Button>();
+            if (radio_front.Checked)
+            {
+                mapdata[x, y] = imagename + "0";
+            }
+            else if (radio_back.Checked)
+            {
+                mapdata[x, y] = imagename + "1";
+            }
+
+            list[buttonId].Image = img;
+        }
+
         public void button_dipose(int width, int height, Form f)
         {
-            
+
             // 初期宣言
             Size s = new Size(38, 38);
             int b_num;
@@ -71,10 +96,8 @@ namespace mapeditor
                     // 2-1)インスタンスを作成
                     // 2-2)配置位置を設定
                     btn.Location = new Point(150 + s.Width * (i % width), 150 + s.Height * (j % height));
-                    btn.AutoSize = true;
                     // 2-3)Nameプロパティを設定
                     btn.Name = "Button" + i;
-
                     // 2-4)サイズを設定
                     btn.Size = s;
                     // 2-5)TabIndexを設定
@@ -88,7 +111,7 @@ namespace mapeditor
 
             foreach (var btn in list)
             {
-                
+
                 // 2-8)フォームに配置
                 f.Controls.Add(btn);
             }
@@ -96,18 +119,8 @@ namespace mapeditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            img_back = new Bitmap(32, 32);
-            Color back = Color.DarkGreen;
-            for(int i = 0; i < 32; i++)
-            {
-                for(int j = 0; j < 32; j++)
-                {
-                    img_back.SetPixel(i, j, back);
-                }
-            }
-        }
 
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+        }
 
         private void button_imgRead_Click(object sender, EventArgs e)
         {
@@ -117,8 +130,8 @@ namespace mapeditor
             {
                 tmppath = System.IO.Path.GetFileName(ofd.FileName);
                 dict.Add(tmppath, ofd.FileName);
-                
-             
+
+
                 split_img(ofd.FileName);
 
                 foreach (var i in img_list)
@@ -126,42 +139,32 @@ namespace mapeditor
                     listBox1.Items.Add(i.Key);
                 }
             }
-            
+
         }
-
-        private void split_img_1(String path)
+        private void button_mapExport_Click(object sender, EventArgs e)
         {
-            Bitmap img_base;
-            Bitmap img_tip;
-            img_list = new Dictionary<string, Bitmap>();
-            int tip_count = 0;
-            // 画像を切り抜く
-            if (path != null)
+            int tate = int.Parse(textBox1.Text);
+            int yoko = int.Parse(textBox2.Text);
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "CSVファイル(カンマ区切り)(*.csv)|*.csv;";
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
-
-                img_base = new Bitmap(path);
-                string img_name = path.Split('\\')[path.Split('\\').GetUpperBound(0)];
-                Console.WriteLine(img_name);
-                int i = 0, j = 0;
-                while (i <= img_base.Size.Width - tip_size.Width)
+                using (StreamWriter sw = new StreamWriter(sfd.FileName))
                 {
-                    while (j <= img_base.Size.Height - tip_size.Height)
+                    for (int i = 0; i < tate; i++)
                     {
-                        Rectangle rect = new Rectangle(i, j, tip_size.Width, tip_size.Height);
-                        img_tip = img_base.Clone(rect, img_base.PixelFormat);
-                        img_list.Add(img_name + "_" + tip_count, img_tip);
+                        for (int j = 0; j < yoko; j++)
+                        {
+                            sw.Write(mapdata[j, i]);
+                            if (j < yoko - 1)
+                            {
+                                sw.Write(",");
+                            }
 
-                        tip_count++;
-                        Console.WriteLine(img_name + "_" + tip_count);
-                        if (j + tip_size.Height <= img_base.Size.Height)
-                            j += tip_size.Height;
-                        else
-                            j += j + tip_size.Height - img_base.Size.Height;
+                        }
+                        sw.Write("\r\n");
                     }
-                    i += tip_size.Width;
                 }
-
-                img_base.Dispose();
             }
         }
 
