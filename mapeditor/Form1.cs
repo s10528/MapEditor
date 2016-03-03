@@ -14,7 +14,11 @@ namespace mapeditor
 
     public partial class Form1 : Form
     {
+
+        Bitmap img_back = new Bitmap(32, 32);
         Size tip_size = new Size(32, 32);
+        Dictionary<String, Bitmap> img_list;
+        int img_count = 0;
         public Form1()
         {
             InitializeComponent();
@@ -72,7 +76,7 @@ namespace mapeditor
                     btn.Name = "Button" + i;
 
                     // 2-4)サイズを設定
-                    btn.Size = new System.Drawing.Size(s.Width, s.Height);
+                    btn.Size = s;
                     // 2-5)TabIndexを設定
                     btn.TabIndex = b_num;
                     // 2-6)ボタンテキストを設定
@@ -92,10 +96,19 @@ namespace mapeditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            img_back = new Bitmap(32, 32);
+            Color back = Color.DarkGreen;
+            for(int i = 0; i < 32; i++)
+            {
+                for(int j = 0; j < 32; j++)
+                {
+                    img_back.SetPixel(i, j, back);
+                }
+            }
         }
 
         Dictionary<string, string> dict = new Dictionary<string, string>();
+
         private void button_imgRead_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -106,7 +119,7 @@ namespace mapeditor
                 dict.Add(tmppath, ofd.FileName);
                 
              
-                split_img_2(ofd.FileName);
+                split_img(ofd.FileName);
 
                 foreach (var i in img_list)
                 {
@@ -115,7 +128,6 @@ namespace mapeditor
             }
             
         }
-        Dictionary<String, Bitmap> img_list;
 
         private void split_img_1(String path)
         {
@@ -141,7 +153,7 @@ namespace mapeditor
 
                         tip_count++;
                         Console.WriteLine(img_name + "_" + tip_count);
-                        if (j + tip_size.Height * 2 <= img_base.Size.Height)
+                        if (j + tip_size.Height <= img_base.Size.Height)
                             j += tip_size.Height;
                         else
                             j += j + tip_size.Height - img_base.Size.Height;
@@ -153,46 +165,43 @@ namespace mapeditor
             }
         }
 
-        private void split_img_2(String path)
+        private void split_img(String path)
         {
             Bitmap img_base;
-            Bitmap img_back = new Bitmap(@"C:\Users\s1534\Pictures\background.bmp");
             Bitmap img_tip;
 
             img_list = new Dictionary<string, Bitmap>();
-            int tip_count = 0;
+            int tip_count = 1;
             // 画像を切り抜く
             if (path != null)
             {
 
                 img_base = new Bitmap(path);
-                string img_name = path.Split('\\')[path.Split('\\').GetUpperBound(0)];
-                Console.WriteLine(img_name);
-                Console.WriteLine(img_base.Size);
+                if (img_base.Size.Width % 32 != 0 || img_base.Size.Width % 32 != 0)
+                {
+                    img_base.Dispose();
+                    MessageBox.Show("ファイルが対応していません");
+                    return;
+                }   
                 int i = 0;
-                do
+                while (i <= img_base.Size.Width - tip_size.Width)
                 {
                     int j = 0;
                     while (j <= img_base.Size.Height - tip_size.Height)
                     {
                         Rectangle rect = new Rectangle(i, j, tip_size.Width, tip_size.Height);
                         img_tip = img_base.Clone(rect, img_base.PixelFormat);
-                        img_list.Add(img_name + "_" + tip_count, img_tip);
 
+                        img_list.Add(img_count.ToString()+tip_count.ToString(), img_tip);
                         tip_count++;
-                        Console.WriteLine(img_name + "_" + tip_count);
+                        
                         j += tip_size.Height;
-                        if (j + tip_size.Height * 2 > img_base.Size.Height)
-                            j -= j + tip_size.Height - img_base.Size.Height;
                     }
                     i += tip_size.Width;
-                    if (i + tip_size.Width * 2 > img_base.Size.Width)
-                        i -= i + tip_size.Width - img_base.Size.Width;
-
-                } while (i <= img_base.Size.Width - tip_size.Width);
-
+                }
                 img_base.Dispose();
             }
+            img_count++;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
