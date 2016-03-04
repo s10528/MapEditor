@@ -14,18 +14,29 @@ namespace mapeditor
 
     public partial class Form1 : Form
     {
-
-        Bitmap img_back = new Bitmap(32, 32);
-        Size tip_size = new Size(32, 32);
-        Dictionary<String, Bitmap> img_list;
+        Size tip_size;
+        Dictionary<String, Bitmap> img_dict;
+        List<string> img_list;
         int img_count = 0;
+
         string[,] mapdata;
-        List<Button> list = new List<Button>();
-        Dictionary<string, string> dict = new Dictionary<string, string>();
+
+        List<Button> button_list;
+        const int num_controls = 10;
+        const int btn_margin = -1;
 
         public Form1()
         {
             InitializeComponent();
+        }
+        
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            tip_size = new Size(32, 32);
+            button_list = new List<Button>();
+            img_list = new List<string>();
+            img_dict = new Dictionary<string, Bitmap>();
+
         }
 
 
@@ -49,14 +60,26 @@ namespace mapeditor
 
 
         }
+
+        private void listBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode ==  Keys.Delete)
+            {
+                Object selected = listBox1.SelectedItem;
+                listBox1.Items.Remove(selected);
+                img_list.Remove((String)selected);
+            }
+        }
+
         private void addImage(object sender, EventArgs e)
         {
-            int buttonId = ((Button)sender).TabIndex - 1; // ボタンの名前
+            if (listBox1.SelectedItem == null)
+                return;
+            int buttonId = ((Button)sender).TabIndex - num_controls - 1; // ボタンの名前
             string imagename = listBox1.SelectedItem.ToString();
-            Bitmap img = img_list[imagepath];
-            int x = int.Parse(list[buttonId].Text.Split(',')[0]);
-            int y = int.Parse(list[buttonId].Text.Split(',')[1]);
-
+            Bitmap img = img_dict[imagename];
+            int x = int.Parse(button_list[buttonId].Text.Split(',')[0]);
+            int y = int.Parse(button_list[buttonId].Text.Split(',')[1]);
             if (radio_front.Checked)
             {
                 mapdata[x, y] = imagename + "0";
@@ -66,7 +89,7 @@ namespace mapeditor
                 mapdata[x, y] = imagename + "1";
             }
 
-            list[buttonId].Image = img;
+            button_list[buttonId].Image = img;
         }
 
         public void button_dipose(int width, int height, Form f)
@@ -75,66 +98,61 @@ namespace mapeditor
             // 初期宣言
             Size s = new Size(38, 38);
             int b_num;
-            if (list.Count != 0)
+            if (button_list.Count != 0)
             {
-                for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < button_list.Count; i++)
                 {
                     // 2-8)フォームに配置
-                    f.Controls.RemoveAt(f.Controls.GetChildIndex(list[i]));
+                    f.Controls.RemoveAt(f.Controls.GetChildIndex(button_list[i]));
                 }
-                list.Clear();
+                button_list.Clear();
             }
 
             // 要素を後ろに追加していく
-            b_num = 0;
-            for (int i = 0; i < width; i++)
+            b_num = num_controls;
+            for (int i = 0; i < height; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < width; j++)
                 {
                     Button btn = new Button();
                     b_num++;
                     // 2-1)インスタンスを作成
                     // 2-2)配置位置を設定
-                    btn.Location = new Point(150 + s.Width * (i % width), 150 + s.Height * (j % height));
+                    btn.Location = new Point(150 + (s.Width + btn_margin) * (j % width), 150 + (s.Height + btn_margin) * (i % height));
                     // 2-3)Nameプロパティを設定
-                    btn.Name = "Button" + i;
+                    btn.Name = "Tip" + (b_num - num_controls);
                     // 2-4)サイズを設定
                     btn.Size = s;
                     // 2-5)TabIndexを設定
                     btn.TabIndex = b_num;
                     // 2-6)ボタンテキストを設定
-                    btn.Text = i + "," + j;
-                    list.Add(btn);
+                    btn.Text = i + "," + j;                     
+                    button_list.Add(btn);
                     btn.Click += addImage;
                 }
             }
 
-            foreach (var btn in list)
+            foreach (var btn in button_list)
             {
-
                 // 2-8)フォームに配置
                 f.Controls.Add(btn);
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void button_imgRead_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            string tmppath;
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                tmppath = System.IO.Path.GetFileName(ofd.FileName);
-                dict.Add(tmppath, ofd.FileName);
-
+                if(img_list.Contains(ofd.FileName))
+                {
+                    MessageBox.Show("既に登録されています");
+                    return;
+                }
 
                 split_img(ofd.FileName);
 
-                foreach (var i in img_list)
+                foreach (var i in img_dict)
                 {
                     listBox1.Items.Add(i.Key);
                 }
@@ -155,7 +173,7 @@ namespace mapeditor
                     {
                         for (int j = 0; j < yoko; j++)
                         {
-                            sw.Write(mapdata[j, i]);
+                            sw.Write(mapdata[i, j]);
                             if (j < yoko - 1)
                             {
                                 sw.Write(",");
@@ -173,12 +191,10 @@ namespace mapeditor
             Bitmap img_base;
             Bitmap img_tip;
 
-            img_list = new Dictionary<string, Bitmap>();
             int tip_count = 1;
             // 画像を切り抜く
             if (path != null)
-            {
-
+            { 
                 img_base = new Bitmap(path);
                 if (img_base.Size.Width % 32 != 0 || img_base.Size.Width % 32 != 0)
                 {
@@ -186,31 +202,27 @@ namespace mapeditor
                     MessageBox.Show("ファイルが対応していません");
                     return;
                 }   
-                int i = 0;
-                while (i <= img_base.Size.Width - tip_size.Width)
+                for(int i = 0;i <= img_base.Size.Height - tip_size.Height; i += tip_size.Height)
                 {
-                    int j = 0;
-                    while (j <= img_base.Size.Height - tip_size.Height)
+                    for(int j = 0;j <= img_base.Size.Width - tip_size.Width; j += tip_size.Width)
                     {
-                        Rectangle rect = new Rectangle(i, j, tip_size.Width, tip_size.Height);
+                        Rectangle rect = new Rectangle(j, i, tip_size.Width, tip_size.Height);
                         img_tip = img_base.Clone(rect, img_base.PixelFormat);
 
-                        img_list.Add(img_count.ToString()+tip_count.ToString(), img_tip);
-                        tip_count++;
-                        
-                        j += tip_size.Height;
+                        img_dict.Add(img_count.ToString()+tip_count.ToString(), img_tip);
+                        tip_count++;                        
                     }
-                    i += tip_size.Width;
                 }
                 img_base.Dispose();
             }
             img_count++;
+            img_list.Add(path);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (img_list != null)
-                foreach (var i in img_list)
+            if (img_dict != null)
+                foreach (var i in img_dict)
                     i.Value.Dispose();
         }
     }
