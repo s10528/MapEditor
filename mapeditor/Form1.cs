@@ -153,7 +153,8 @@ namespace mapeditor
 
                 foreach (var i in img_dict)
                 {
-                    listBox1.Items.Add(i.Key);
+                    if(!listBox1.Items.Contains(i.Key))
+                        listBox1.Items.Add(i.Key);
                 }
             }
 
@@ -192,19 +193,36 @@ namespace mapeditor
                     img_base.Dispose();
                     MessageBox.Show("ファイルが対応していません");
                     return;
-                }   
-                for(int i = 0;i <= img_base.Size.Height - tip_size.Height; i += tip_size.Height)
-                {
-                    for(int j = 0;j <= img_base.Size.Width - tip_size.Width; j += tip_size.Width)
-                    {
-                        Rectangle rect = new Rectangle(j, i, tip_size.Width, tip_size.Height);
-                        img_tip = img_base.Clone(rect, img_base.PixelFormat);
-
-                        img_dict.Add(img_count.ToString()+tip_count.ToString(), img_tip);
-                        tip_count++;                        
-                    }
                 }
-                img_base.Dispose();
+                //FolderBrowserDialogクラスのインスタンスを作成
+                FolderBrowserDialog fbd = new FolderBrowserDialog();
+
+                //上部に表示する説明テキストを指定する
+                fbd.Description = "フォルダを指定してください。";
+                //ルートフォルダを指定する
+                //デフォルトでDesktop
+                fbd.RootFolder = Environment.SpecialFolder.Desktop;
+               
+                //ユーザーが新しいフォルダを作成できるようにする
+                //デフォルトでTrue
+                fbd.ShowNewFolderButton = true;
+
+                //ダイアログを表示する
+                if (fbd.ShowDialog(this) == DialogResult.OK)
+                {
+                    for (int i = 0; i <= img_base.Size.Height - tip_size.Height; i += tip_size.Height)
+                    {
+                        for (int j = 0; j <= img_base.Size.Width - tip_size.Width; j += tip_size.Width)
+                        {
+                            Rectangle rect = new Rectangle(j, i, tip_size.Width, tip_size.Height);
+                            img_tip = img_base.Clone(rect, img_base.PixelFormat);
+                            img_tip.Save(@fbd.SelectedPath+ "\\" +tip_count.ToString()+ System.IO.Path.GetExtension(path));
+                            img_dict.Add(img_count.ToString() + tip_count.ToString(), img_tip);
+                            tip_count++;
+                        }
+                    }
+                    img_base.Dispose();
+                }                
             }
             img_count++;
             img_list.Add(path);
