@@ -16,10 +16,10 @@ namespace mapeditor
     {
         Size tip_size;
         Dictionary<String, Bitmap> img_dict;
-        List<string> img_list;
+        List<String> img_list;
         int img_count = 0;
 
-        string[,] mapdata;
+        Dictionary<Point, String> mapdata;
 
         List<Button> button_list;
         const int num_controls = 10;
@@ -34,19 +34,19 @@ namespace mapeditor
         {
             tip_size = new Size(32, 32);
             button_list = new List<Button>();
-            img_list = new List<string>();
+            img_list = new List<String>();
             img_dict = new Dictionary<string, Bitmap>();
 
+            mapdata = new Dictionary<Point, string>();
         }
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            mapdata.Clear();
             int tate = int.Parse(textBox1.Text);
             int yoko = int.Parse(textBox2.Text);
 
-            mapdata = new string[tate, yoko];
             //for (int i = 0; i < tate; i++)
             //{
             //    for (int j = 0; j < yoko; j++)
@@ -76,19 +76,18 @@ namespace mapeditor
             if (listBox1.SelectedItem == null)
                 return;
             int buttonId = ((Button)sender).TabIndex - num_controls - 1; // ボタンの名前
-            string imagename = listBox1.SelectedItem.ToString();
+            String imagename = listBox1.SelectedItem.ToString();
             Bitmap img = img_dict[imagename];
             int x = int.Parse(button_list[buttonId].Text.Split(',')[0]);
             int y = int.Parse(button_list[buttonId].Text.Split(',')[1]);
             if (radio_front.Checked)
             {
-                mapdata[x, y] = imagename + "0";
+                mapdata.Add(new Point(x, y), imagename + "0");
             }
             else if (radio_back.Checked)
             {
-                mapdata[x, y] = imagename + "1";
+                mapdata.Add(new Point(x, y), imagename + "1");
             }
-
             button_list[buttonId].Image = img;
         }
 
@@ -110,15 +109,15 @@ namespace mapeditor
 
             // 要素を後ろに追加していく
             b_num = num_controls;
-            for (int i = 0; i < height; i++)
+            for (int j = height - 1; j >= 0 ; j--)
             {
-                for (int j = 0; j < width; j++)
+                for (int i = 0; i <= width; i++)
                 {
                     Button btn = new Button();
                     b_num++;
                     // 2-1)インスタンスを作成
                     // 2-2)配置位置を設定
-                    btn.Location = new Point(150 + (s.Width + btn_margin) * (j % width), 150 + (s.Height + btn_margin) * (i % height));
+                    btn.Location = new Point(150 + (s.Width + btn_margin) * (i % width), 150 + (s.Height + btn_margin) * ((height - 1 - j) % height));
                     // 2-3)Nameプロパティを設定
                     btn.Name = "Tip" + (b_num - num_controls);
                     // 2-4)サイズを設定
@@ -169,17 +168,9 @@ namespace mapeditor
             {
                 using (StreamWriter sw = new StreamWriter(sfd.FileName))
                 {
-                    for (int i = 0; i < tate; i++)
+                    foreach(var v in mapdata)
                     {
-                        for (int j = 0; j < yoko; j++)
-                        {
-                            sw.Write(mapdata[i, j]);
-                            if (j < yoko - 1)
-                            {
-                                sw.Write(",");
-                            }
-
-                        }
+                        sw.Write(v.Value + "," + v.Key.X + "," + v.Key.Y);                        
                         sw.Write("\r\n");
                     }
                 }
