@@ -82,7 +82,10 @@ namespace mapeditor
             int y = int.Parse(button_list[buttonId].Text.Split(',')[1]);
             if (radio_front.Checked)
             {
-                mapdata.Add(new Point(x, y), imagename + "0");
+                if(!mapdata.ContainsKey(new Point(x, y)))
+                    mapdata.Add(new Point(x, y), imagename + "0");
+                else
+                    mapdata.Add(new Point(x, y), imagename + "0");
             }
             else if (radio_back.Checked)
             {
